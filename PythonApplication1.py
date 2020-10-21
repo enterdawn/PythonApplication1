@@ -3,6 +3,9 @@ import sqlite3
 import sys
 import hashlib
 import pymssql 
+import getpass
+import string
+import hashlib
 pymysql.install_as_MySQLdb()
 print("请选择数据库类型（1.mysql 2. MS sql server 3.sqlite）")
 sqlsecert=int(input())
@@ -156,16 +159,18 @@ def resigner():
 
 admin_verify_ticket()
 while 1:
-    print("请输入用户名（输入resigner注册）")
+    print("请输入用户名（输入resigner注册）:")
     username=input()
     if username==resigner: resigner()
-    print("请输入密码")
-    password=input()
-    md5pass = hashlib.md5(password)
+    password=getpass.getpass("请输入密码:")
+    md5pass = hashlib.md5(password.encode("utf-8"))
     md5password = md5pass.hexdigest()
     cur.execute("SELECT userpassword FROM user where username=%s",username)
-    if cur==NULL :print("用户不存在")
-    if cur!=md5password:print("密码错误")
+    if cur is None :print("用户不存在")
+    for i in cur:
+        print(i)
+        print(md5password)
+        if i[0]!=md5password:print("密码错误")
 
 
 
