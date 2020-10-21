@@ -1,5 +1,7 @@
 import pymysql
 import sqlite3
+import sys
+import hashlib
 import pymssql 
 pymysql.install_as_MySQLdb()
 print("请选择数据库类型（1.mysql 2. MS sql server 3.sqlite）")
@@ -23,7 +25,25 @@ cur = conn.cursor()
 #admin
 #user
 #login
-cur.execute("SELECT userid FROM user")
+def resigner():
+    print("请输入用户名")
+    cur.execute("SELECT userpassword FROM user where username=%s",username)
+    if cur!=NULL :print("用户已存在")
+
+while 1:
+    print("请输入用户名（输入resigner注册）")
+    username=input()
+    if username==resigner: resigner()
+    print("请输入密码")
+    password=input()
+    md5pass = hashlib.md5(password)
+    md5password = md5pass.hexdigest()
+    cur.execute("SELECT userpassword FROM user where username=%s",username)
+    if cur==NULL :print("用户不存在")
+    if cur!=md5password:print("密码错误")
+
+
+
 for r in cur:
   print(r)
 cur.close()
