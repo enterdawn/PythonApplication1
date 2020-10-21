@@ -18,6 +18,7 @@ while 1:
     else:
         print("输入错误，请重新输入（1.mysql 2. MS sql server 3.sqlite）")
 cur = conn.cursor()
+#123456
 #select
 #admin
 #user
