@@ -17,8 +17,7 @@ while 1:
         con = sqlite3.connect('ticket.db')
     else:
         print("输入错误，请重新输入（1.mysql 2. MS sql server 3.sqlite）")
-cur = conn.cursor()'
-#admin
+cur = conn.cursor()
 #select
 #admin
 #user
