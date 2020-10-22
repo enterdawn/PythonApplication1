@@ -6,6 +6,7 @@ import pymssql
 import getpass
 import string
 import hashlib
+import time
 pymysql.install_as_MySQLdb()
 print("请选择数据库类型（1.mysql 2. MS sql server 3.sqlite）")
 sqlsecert=int(input())
@@ -122,7 +123,7 @@ def admin_verify_ticket():
     
 
 
-#用户操作
+#管理员用户操作
 def admin_operation():
     select = -1
     admin_menu()
@@ -150,12 +151,38 @@ def admin_operation():
 
 
 #user
-#login
+def user_operation(username):
 
+#login
+#注册
 def resigner():
     print("请输入用户名")
-    cur.execute("SELECT userpassword FROM user where username=%s",username)
-    if cur!=NULL :print("用户已存在")
+    while 1:
+        usernane=input()
+        cur.execute("SELECT userpassword FROM user where username=%s",username)
+        if cur!=none or username=="resigner" :print("用户已存在")
+        else: break
+    now = int(round(time.time()*1000))
+    resignertime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(now/1000))
+    cur.execute("SELECT MAX(userid")
+    for i in cur:
+         userid=int(i[0])+1
+    while 1:
+        password=getpass.getpass("请输入密码:")
+        if len(password)<6 :print("密码太短,请重新输入")
+        else:break
+    md5pass = hashlib.md5(password.encode("utf-8"))
+    md5password = md5pass.hexdigest()
+    print("请输入您的姓名")
+    name=input()
+    print("%s,%s,确定注册(y,n)？",username,name)
+    y=input()
+    if y=="y":
+        cur.execute("INSERT INTO user ( userid, username,userpassword,namee,resigner ) VALUES ( %s, %s,,%s,%s );",userid,username,name,resignertime)
+        print("注册成功")
+
+   
+
 
 admin_verify_ticket()
 while 1:
@@ -170,8 +197,16 @@ while 1:
     for i in cur:
         print(i)
         print(md5password)
-        if i[0]!=md5password:print("密码错误")
-
+        if i[0]!=md5password:
+            print("密码错误")
+            continue
+        else:
+            cur.execute("SELECT admin FROM user where username=%s",username)
+            for i in cur:
+                if i[0]==1: 
+                    admin_operation()
+                else:
+                    user_operation()
 
 
 for r in cur:
