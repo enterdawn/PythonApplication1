@@ -45,7 +45,7 @@ cur = conn.cursor()
 
 #管理员菜单
 def admin_menu(username):
-    print("管理员你好,%s",username)
+    print("管理员",username,"你好")
     print("1.封禁、解封账号")
     print("2.管理账户权限")
     print("3.验证票务信息")
@@ -53,12 +53,8 @@ def admin_menu(username):
     print("5.修改票务信息")
     print("6.修改用户信息")
     print("7.查看用户信息")
+    print("8.退出系统")
 
-def ban_unseal(flag,username):
-    if flag==true: 
-        cur.execute("update user set statuss = false where username = %s",username)
-    else:
-        cur.execute("update user set statuss = true where username = %s",username)
 
 #1.封禁、解封账号
 def admin_ban_unseal():
@@ -66,18 +62,30 @@ def admin_ban_unseal():
     print("请输入要操作的用户名")
     name = input()
     cur.execute("SELECT statuss FROM user where username=%s",name)
-    if cur == NULL:
+    ok = 0
+    status = ""
+    for val in cur:
+        ok = 1
+        status = val
+    if ok == 0:
         print("用户不存在")
-    elif cur == true:
-        select = ""
-        print("用户已被封禁，是否解封（是Y/否N）")
-        if select == "Y":
-            ban_unseal(true,name)
-    elif cur == false:
-        select = ""
-        print("是否封禁该用户（是Y/否N）")
-        if select == "Y":
-            ban_uneal(false,name)
+    else:
+        if status[0] == 1:
+            select = ""
+            print("用户已被封禁，是否解封（是y/否n）")
+            select = input()
+            if select == "y":
+                cur.execute("update user set statuss = 0 where username = %s",name)
+                conn.commit()
+                print("操作成功")
+        else:
+            select = ""
+            print("是否封禁该用户（是y/否n）")
+            select = input()
+            if select == "y":
+                cur.execute("update user set statuss = 1 where username = %s",name)
+                conn.commit()
+                print("操作成功")
 
 
 #2.管理账户权限
@@ -86,13 +94,22 @@ def admin_authority():
     print("请输入要给予权限的账户名")
     name = input()
     cur.execute("SELECT admin FROM user where username=%s",name)
-    if cur == NULL:
+    ok = 0
+    admin = 0
+    for val in cur:
+        ok = 1
+        admin = val
+    if ok == 0:
         print("用户不存在")
-    elif cur == true:
-        print("该用户已经具备管理员权限")
     else:
-        cur.execute("update user set admin = true where username = %s",name)
-        print("权限授予成功")
+        if admin[0] == 1:
+            print("该用户已经具备管理员权限")
+        else:
+            cur.execute("update user set admin = true where username = %s",name)
+            conn.commit()
+            print("权限授予成功")
+
+
 
 #3.验证票务信息
 def admin_verify_ticket():
@@ -124,47 +141,59 @@ def admin_verify_ticket():
 
 
 #管理员用户操作
-def admin_operation():
-    select = -1
-    admin_menu()
-    while true:
-        select = input()
-        if isdigit(select) == false or select < 0 or select > 7:
-            print("输入有误，请重新输入")
+def admin_operation(username):
+    while 1:
+        select = -1
+        admin_menu(username)
+        while 1:
+            select = input()
+            if select.isdigit() == 0 or select < str(0) or select > str(8):
+                print("输入有误，请重新输入")
+            else:
+                break
+        if select == "1":
+            admin_ban_unseal()
+        elif select == "2":
+            admin_authority()
+        elif select == "3":
+            admin_verify_ticket()
+        elif select == "4":
+            admin_select_ticket()
+        elif select == "5":
+            admin_modify_ticket()
+        elif select == "6":
+            admin_modify_user()
+        elif select == "7":
+            admin_view_user()
         else:
-            break
-    if select == 1:
-        admin_ban_unseal()
-    elif select == 2:
-        admin_authority()
-    elif select == 3:
-        admin_verify_ticket()
-    elif select == 4:
-        admin_select_ticket()
-    elif select == 5:
-        admin_modify_ticket()
-    elif select == 6:
-        admin_modify_user()
-    elif select == 7:
-        admin_view_user()
+            break;
 
 
 
 #user
-def user_operation(username):
+#def user_operation(username):
 
 #login
 #注册
+
 def register():
     print("请输入用户名")
+    flag = 0
     while 1:
-        usernane=input()
-        cur.execute("SELECT userpassword FROM user where username=%s",username)
-        if cur!=none or username=="resigner" :print("用户已存在")
-        else: break
+        enter = 0
+        registername=input()
+        cur.execute("SELECT username FROM user where username=%s",registername)
+        for i in cur:
+            enter = 1
+            if i or registername == "register" :
+                print("用户已存在,请重新输入用户名")
+            else:
+               flag=1
+        if flag == 1 or enter == 0:
+            break
     now = int(round(time.time()*1000))
-    resignertime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(now/1000))
-    cur.execute("SELECT MAX(userid")
+    registertime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(now/1000))
+    cur.execute("SELECT MAX(userid) from user")
     for i in cur:
          userid=int(i[0])+1
     while 1:
@@ -176,28 +205,31 @@ def register():
     md5password = md5pass.hexdigest()
     print("请输入您的姓名")
     name=input()
-    print("%s,%s,确定注册(y,n)？",username,name)
+    print(username,",",name,",","确定注册(y,n)？")
     y=input()
     if y=="y":
-        cur.execute("INSERT INTO user ( userid, username,userpassword,namee,resigner ) VALUES ( %s, %s,,%s,%s );",userid,username,name,resignertime)
+        info = [userid,registername,md5password,name,registertime]
+        cur.execute("INSERT INTO user(userid, username,userpassword,namee,resigner) VALUES (%s,%s,%s,%s,%s);",info)
+        conn.commit()
         print("注册成功")
 
-   
+#普通用户
+def user_operation():
+    print("temporary empty")
 
 
-admin_verify_ticket()
+#admin_verify_ticket()
 while 1:
-    print("请输入用户名（输入resigner注册）:")
+    print("请输入用户名（输入register注册）:")
     username=input()
-    if username==resigner: resigner()
+    if username=="register":
+        register()
+        continue
     password=getpass.getpass("请输入密码:")
     md5pass = hashlib.md5(password.encode("utf-8"))
     md5password = md5pass.hexdigest()
     cur.execute("SELECT userpassword FROM user where username=%s",username)
-    if cur is None :print("用户不存在")
     for i in cur:
-        print(i)
-        print(md5password)
         if i[0]!=md5password:
             print("密码错误")
             continue
@@ -205,7 +237,7 @@ while 1:
             cur.execute("SELECT admin FROM user where username=%s",username)
             for i in cur:
                 if i[0]==1: 
-                    admin_operation()
+                    admin_operation(username)
                 else:
                     user_operation()
 
