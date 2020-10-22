@@ -155,7 +155,7 @@ def user_operation(username):
 
 #login
 #注册
-def resigner():
+def register():
     print("请输入用户名")
     while 1:
         usernane=input()
@@ -170,6 +170,7 @@ def resigner():
     while 1:
         password=getpass.getpass("请输入密码:")
         if len(password)<6 :print("密码太短,请重新输入")
+        elif len(password)>20:print("密码太长，请重新输入")
         else:break
     md5pass = hashlib.md5(password.encode("utf-8"))
     md5password = md5pass.hexdigest()
