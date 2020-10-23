@@ -135,15 +135,79 @@ def admin_verify_ticket():
             print("update ticket set verify = 1 where ticketid = %s",val.ticketid)
         ind = ind + 1
 
+#4.删除票务信息
+def admin_delete_ticket():
+    ticketid = -1
+    print("请输入要删除的票务编号")
+    while 1:
+        ticketid = input()
+        if ticketid == "#":
+            return 
+        cur.execute("select * from ticket where ticketid = %s",ticketid)
+        info = cur.fetchall()
+        if len(info) == 0:
+            print("该票务未查到,请重新输入(输入#返回上级菜单)")
+        else:
+            break
+    print("您确定要删除此项记录？(是y/否n)")
+    ok = input()
+    if ok == "y":
+        cur.execute("delete from ticket where ticketid = %s",ticketid)
+        conn.commit()
+        print("删除成功")
 
-        
-    
+
+#5.修改班次信息
+def admin_modify_order():
+    orderid = -1
+    print("请输入要修改的班次编号")
+    while 1:
+        orderid = input()
+        if orderid == "#":
+            return 
+        cur.execute("select * from classticket where orderid = %s",orderid)
+        info = cur.fetchall()
+        if len(info) == 0:
+            print("该班次未找到，请重新输入(输入#返回上级菜单)")
+        else:
+            break;
+    print("可修改项如下")
+    print("班次编号、类型、上传者编号、余量、公司、出发地、目的地、开始时间、历时、当前价格、状态")
+    print("请按如下格式输入要修改的数据项，以@结束")
+    map = {"班次编号":"orderid","类型":"typee","上传者编号":"uploaderid","余量":"rest","公司":"company","出发地":"fromm","目的地":"too","开始时间":"begintime","历时":"timee","当前价格":"money","状态":"statuss"}
+    item,val="",""
+    while 1:
+        item=input()
+        print("项目：",item)
+        val=input()
+        print("值：",val)
+        if item == "@":
+            break
+        map[item]=val
+    print(map)
+    input()
+    for val in map:
+        info = [val[0],val[1],orderid]
+        cur.execute("update classticket set %s = %s where orderid = %s",info)
+        conn.commit()
+    print("数据更新成功")
+
+
+
+#6.修改用户信息
+def admin_modify_user():
+    print("empty")
+
+#7.查看用户信息
+def admin_view_user():
+    print("empty")
 
 
 #管理员用户操作
+
 def admin_operation(username):
     while 1:
-        select = -1
+        select = ""
         admin_menu(username)
         while 1:
             select = input()
@@ -158,9 +222,9 @@ def admin_operation(username):
         elif select == "3":
             admin_verify_ticket()
         elif select == "4":
-            admin_select_ticket()
+            admin_delete_ticket()
         elif select == "5":
-            admin_modify_ticket()
+            admin_modify_order()
         elif select == "6":
             admin_modify_user()
         elif select == "7":
