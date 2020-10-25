@@ -62,7 +62,7 @@ def admin_ban_unseal():
     name = ""
     print("请输入要操作的用户名")
     name = input()
-    cur.execute("SELECT statuss FROM user where username=%s",name)
+    cur.execute("SELECT statuss FROM users where username=%s",name)
     ok = 0
     status = ""
     for val in cur:
@@ -76,7 +76,7 @@ def admin_ban_unseal():
             print("用户已被封禁，是否解封（是y/否n）")
             select = input()
             if select == "y":
-                cur.execute("update user set statuss = 0 where username = %s",name)
+                cur.execute("update users set statuss = 0 where username = %s",name)
                 conn.commit()
                 print("操作成功")
         else:
@@ -84,7 +84,7 @@ def admin_ban_unseal():
             print("是否封禁该用户（是y/否n）")
             select = input()
             if select == "y":
-                cur.execute("update user set statuss = 1 where username = %s",name)
+                cur.execute("update users set statuss = 1 where username = %s",name)
                 conn.commit()
                 print("操作成功")
 
@@ -94,7 +94,7 @@ def admin_authority():
     name = ""
     print("请输入要给予权限的账户名")
     name = input()
-    cur.execute("SELECT admin FROM user where username=%s",name)
+    cur.execute("SELECT admin FROM users where username=%s",name)
     ok = 0
     admin = 0
     for val in cur:
@@ -106,7 +106,7 @@ def admin_authority():
         if admin[0] == 1:
             print("该用户已经具备管理员权限")
         else:
-            cur.execute("update user set admin = true where username = %s",name)
+            cur.execute("update users set admin = true where username = %s",name)
             conn.commit()
             print("权限授予成功")
 
@@ -214,7 +214,7 @@ def admin_modify_user():
         username = input()
         if username == "#":
             return 
-        cur.execute("select * from user where username = %s",username)
+        cur.execute("select * from users where username = %s",username)
         info = cur.fetchall()
         if len(info) == 0:
             print("该用户未找到，请重新输入用户名(输入#返回上级菜单)")
@@ -257,7 +257,7 @@ def admin_modify_user():
                 print("输入有误，请重新输入")
                 val = input()
         if select == "管理权限":
-            cur.execute("select admin from user where username = %s",username)
+            cur.execute("select admin from users where username = %s",username)
             info = cur.fetchall()
             print("enter",info[0][0])
             if info[0] == 0:
@@ -265,7 +265,7 @@ def admin_modify_user():
             else:
                 val = 0
         if select == "账户状态":
-            cur.execute("select statuss from user where username = %s",username)
+            cur.execute("select statuss from users where username = %s",username)
             info = cur.fetchall()
             if info == 0:
                 val = 1
@@ -275,23 +275,23 @@ def admin_modify_user():
             val = input()
         info = [val,username]
         if select == "密码":
-            cur.execute("update user set userpassword = %s where username = %s",info)
+            cur.execute("update users set userpassword = %s where username = %s",info)
         if select == "姓名":
-            cur.execute("update user set namee = %s where username = %s",info)
+            cur.execute("update users set namee = %s where username = %s",info)
         if select == "性别":
-            cur.execute("update user set sex = %s where username = %s",info)
+            cur.execute("update users set sex = %s where username = %s",info)
         if select == "手机号":
-            cur.execute("update user set phonenumber = %s where username = %s",info)
+            cur.execute("update users set phonenumber = %s where username = %s",info)
         if select == "电子邮箱":
-            cur.execute("update user set email = %s where username = %s",info)
+            cur.execute("update users set email = %s where username = %s",info)
         if select == "活跃度":
-            cur.execute("update user set active = %s where username = %s",info)
+            cur.execute("update users set active = %s where username = %s",info)
         if select == "身份证号":
-            cur.execute("update user set idcard = %s where username = %s",info)
+            cur.execute("update users set idcard = %s where username = %s",info)
         if select == "账户状态":
-            cur.execute("update user set statuss = %s where username = %s",info)
+            cur.execute("update users set statuss = %s where username = %s",info)
         if select == "管理权限":
-            cur.execute("update user set admin = %s where username = %s",info)
+            cur.execute("update users set admin = %s where username = %s",info)
         conn.commit()
         print("数据更新成功")
     print("\n最新数据如下")
@@ -299,7 +299,7 @@ def admin_modify_user():
 
 #7.查看用户信息
 def admin_view_user(username):
-    cur.execute("select * from user where username = %s",username)
+    cur.execute("select * from users where username = %s",username)
     info = cur.fetchall()
     ind = 1
     for val in info[0]:
@@ -380,7 +380,7 @@ def register():
     while 1:
         enter = 0
         registername=input()
-        cur.execute("SELECT username FROM user where username=%s",registername)
+        cur.execute("SELECT username FROM users where username=%s",registername)
         for i in cur:
             enter = 1
             if i or registername == "register" :
@@ -391,7 +391,7 @@ def register():
             break
     now = int(round(time.time()*1000))
     registertime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(now/1000))
-    cur.execute("SELECT MAX(userid) from user")
+    cur.execute("SELECT MAX(userid) from users")
     for i in cur:
          userid=int(i[0])+1
     while 1:
@@ -407,7 +407,7 @@ def register():
     y=input()
     if y=="y":
         info = [userid,registername,md5password,name]
-        cur.execute("INSERT INTO user(userid, username,userpassword,namee) VALUES (%s,%s,%s,%s);",info)
+        cur.execute("INSERT INTO users(userid, username,userpassword,namee) VALUES (%s,%s,%s,%s);",info)
         conn.commit()
         print("注册成功")
 
@@ -461,13 +461,13 @@ while 1:
     password=getpass.getpass("请输入密码:")
     md5pass = hashlib.md5(password.encode("utf-8"))
     md5password = md5pass.hexdigest()
-    cur.execute("SELECT userpassword FROM homework.user where username=%s",username)
+    cur.execute("SELECT userpassword FROM users where username=%s",username)
     for i in cur:
         if i[0]!=md5password:
             print("密码错误")
             continue
         else:
-            cur.execute("SELECT admin FROM user where username=%s",username)
+            cur.execute("SELECT admin FROM users where username=%s",username)
             for i in cur:
                 if i[0]==1: 
                     admin_operation(username)
