@@ -7,6 +7,7 @@ import getpass
 import string
 import hashlib
 import time
+import re
 pymysql.install_as_MySQLdb()
 print("请选择数据库类型（1.mysql 2. MS sql server 3.sqlite）")
 sqlsecert=int(input())
@@ -168,39 +169,170 @@ def admin_modify_order():
         cur.execute("select * from classticket where orderid = %s",orderid)
         info = cur.fetchall()
         if len(info) == 0:
-            print("该班次未找到，请重新输入(输入#返回上级菜单)")
+            print("该班次未找到，请重新输入班次编号(输入#返回上级菜单)")
         else:
             break;
     print("可修改项如下")
-    print("班次编号、类型、上传者编号、余量、公司、出发地、目的地、开始时间、历时、当前价格、状态")
-    print("请按如下格式输入要修改的数据项，以@结束")
-    map = {"班次编号":"orderid","类型":"typee","上传者编号":"uploaderid","余量":"rest","公司":"company","出发地":"fromm","目的地":"too","开始时间":"begintime","历时":"timee","当前价格":"money","状态":"statuss"}
-    item,val="",""
     while 1:
-        item=input()
-        print("项目：",item)
-        val=input()
-        print("值：",val)
-        if item == "@":
+        print("类型、上传者编号、余量、公司、出发地、目的地、开始时间、历时、当前价格、状态")
+        print("请输入要修改的数据项(以“++”结束输入)")
+        select = input()
+        if(select == "++"):
             break
-        map[item]=val
-    print(map)
-    input()
-    for val in map:
-        info = [val[0],val[1],orderid]
-        cur.execute("update classticket set %s = %s where orderid = %s",info)
+        val = input()
+        info = [val,orderid]
+        if select == "类型":
+            cur.execute("update classticket set typee = %s where orderid = %s",info)
+        if select == "上传者编号":
+            cur.execute("update classticket set uploaderid = %s where orderid = %s",info)
+        if select == "余量":
+            cur.execute("update classticket set rest = %s where orderid = %s",info)
+        if select == "公司":
+            cur.execute("update classticket set company = %s where orderid = %s",info)
+        if select == "出发点":
+            cur.execute("update classticket set fromm = %s where orderid = %s",info)
+        if select == "目的地":
+            cur.execute("update classticket set too = %s where orderid = %s",info)
+        if select == "开始时间":
+            cur.execute("update classticket set begintime = %s where orderid = %s",info)
+        if select == "历时":
+            cur.execute("update classticket set timee = %s where orderid = %s",info)
+        if select == "当前价格":
+            cur.execute("update classticket set money = %s where orderid = %s",info)
+        if select == "状态":
+            cur.execute("update classticket set statuss = %s where orderid = %s",info)
         conn.commit()
-    print("数据更新成功")
+        print("数据更新成功")
 
 
 
 #6.修改用户信息
 def admin_modify_user():
-    print("empty")
+    username = -1
+    print("请输入要修改的用户名")
+    while 1:
+        username = input()
+        if username == "#":
+            return 
+        cur.execute("select * from user where username = %s",username)
+        info = cur.fetchall()
+        if len(info) == 0:
+            print("该用户未找到，请重新输入用户名(输入#返回上级菜单)")
+        else:
+            break;
+    print("可修改项如下")
+    while 1:
+        select,val = "",""
+        print("密码、姓名、性别、手机号、电子邮箱、活跃度、身份证号、账户状态、管理权限")
+        print("请输入要修改的数据项(以“++”结束输入)")
+        select = input()
+        if select == "++" :
+            break
+        if select == "密码":
+           fpw = getpass.getpass("请输入新密码")
+           spw = getpass.getpass("请确认密码")
+           while fpw != spw:
+               fpw = getpass.getpass("请输入新密码")
+               spw = getpass.getpass("请确认密码")
+           md5pass = hashlib.md5(fpw.encode("utf-8"))
+           md5password = md5pass.hexdigest()
+           val = md5password
+        if select == "性别":
+            val == input()
+            while val != "男" and val != "女":
+                print("输入有误，请重新输入")
+                val = input()
+        if select == "手机号":
+            val = input()
+            phone_pat = re.compile('^(13\d|14[5|7]|15\d|166|17[3|6|7]|18\d)\d{8}$')
+            pg = true
+            while re.search(phone_pat,val) == 0:
+                print("输入有误，请重新输入")
+                val = input()
+
+        if select == "电子邮箱":
+            val = input()
+            email_pat = re.compile('^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$')
+            while re.search(email_pat,val) == 0:
+                print("输入有误，请重新输入")
+                val = input()
+        if select == "管理权限":
+            cur.execute("select admin from user where username = %s",username)
+            info = cur.fetchall()
+            print("enter",info[0][0])
+            if info[0] == 0:
+                val = 1
+            else:
+                val = 0
+        if select == "账户状态":
+            cur.execute("select statuss from user where username = %s",username)
+            info = cur.fetchall()
+            if info == 0:
+                val = 1
+            else:
+                val =0
+        if select != "账户状态" and select != "管理权限" and select != "电子邮箱" and select != "手机号" and select != "性别" and select != "密码":
+            val = input()
+        info = [val,username]
+        if select == "密码":
+            cur.execute("update user set userpassword = %s where username = %s",info)
+        if select == "姓名":
+            cur.execute("update user set namee = %s where username = %s",info)
+        if select == "性别":
+            cur.execute("update user set sex = %s where username = %s",info)
+        if select == "手机号":
+            cur.execute("update user set phonenumber = %s where username = %s",info)
+        if select == "电子邮箱":
+            cur.execute("update user set email = %s where username = %s",info)
+        if select == "活跃度":
+            cur.execute("update user set active = %s where username = %s",info)
+        if select == "身份证号":
+            cur.execute("update user set idcard = %s where username = %s",info)
+        if select == "账户状态":
+            cur.execute("update user set statuss = %s where username = %s",info)
+        if select == "管理权限":
+            cur.execute("update user set admin = %s where username = %s",info)
+        conn.commit()
+        print("数据更新成功")
+    print("\n最新数据如下")
+    admin_view_user(username)
 
 #7.查看用户信息
-def admin_view_user():
-    print("empty")
+def admin_view_user(username):
+    cur.execute("select * from user where username = %s",username)
+    info = cur.fetchall()
+    ind = 1
+    for val in info[0]:
+        if ind == 1:
+            print("用户编号: ",end="")
+        if ind == 2:
+            print("用户名: ",end="")
+        if ind == 3:
+            ind = ind + 1
+            continue
+        if ind == 4:
+            print("用户姓名: ",end="")
+        if ind == 5:
+            print("性别: ",end="")
+        if ind == 6:
+            print("手机号: ",end="")
+        if ind == 7:
+            print("电子邮箱: ",end="")
+        if ind == 8:
+            print("活跃度: ",end="")
+        if ind == 9:
+            print("身份证号: ",end="")
+        if ind == 10:
+            print("账户状态: ",end="")
+        if ind == 11:
+            print("管理权限: ",end="")
+        if ind == 12:
+            print("注册时间: ",end="")
+        print(val)
+        ind = ind + 1
+
+
+
 
 
 #管理员用户操作
@@ -228,6 +360,8 @@ def admin_operation(username):
         elif select == "6":
             admin_modify_user()
         elif select == "7":
+            print("请输入要查询用户名")
+            username = input()
             admin_view_user()
         else:
             break;
@@ -272,15 +406,50 @@ def register():
     print(username,",",name,",","确定注册(y,n)？")
     y=input()
     if y=="y":
-        info = [userid,registername,md5password,name,registertime]
-        cur.execute("INSERT INTO user(userid, username,userpassword,namee,resigner) VALUES (%s,%s,%s,%s,%s);",info)
+        info = [userid,registername,md5password,name]
+        cur.execute("INSERT INTO user(userid, username,userpassword,namee) VALUES (%s,%s,%s,%s);",info)
         conn.commit()
         print("注册成功")
 
-#普通用户
-def user_operation():
-    print("temporary empty")
 
+#1.发布信息
+#2.修改自己信息
+#3.查询票务信息
+#4.删除发布的票务信息
+#5.退出系统
+#普通用户
+
+def user_publish():
+    print("empty")
+
+def user_modify():
+    print("empty")
+
+def user_search():
+    print("empty")
+
+def user_delete():
+    print("empty")
+
+
+def user_opmenu():
+    print("1.发布票务信息\n2.修改个人信息\n3.查询票务信息\n4.删除发布的票务信息")
+
+def user_operation(username):
+    print("用户",username,"你好")
+    while 1:
+        user_opmenu()
+        select = input()
+        if select == 1:
+            user_publish()
+        if select == 2:
+            user_modify()
+        if select == 3:
+            user_search()
+        if select == 4:
+            user_delete()
+        if select == 5:
+            break
 
 #admin_verify_ticket()
 while 1:
@@ -303,10 +472,12 @@ while 1:
                 if i[0]==1: 
                     admin_operation(username)
                 else:
-                    user_operation()
+                    user_operation(username)
 
 
 for r in cur:
   print(r)
 cur.close()
 conn.close()
+
+
