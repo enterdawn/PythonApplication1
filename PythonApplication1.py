@@ -20,7 +20,7 @@ while 1:
             continue
         else:break
     elif sqlsecert==2: 
-        try:conn = pymssql.connect(host='127.0.0.1',user='sa',password='hello',database='NPKW',charset="utf8")
+        try:conn = pymssql.connect(host='175.24.8.61',user='sa',password='homework123.',database='homework',charset="utf8")
         except:
             print("无法连接到数据库,请重新选择")
             continue
@@ -461,7 +461,7 @@ while 1:
     password=getpass.getpass("请输入密码:")
     md5pass = hashlib.md5(password.encode("utf-8"))
     md5password = md5pass.hexdigest()
-    cur.execute("SELECT userpassword FROM user where username=%s",username)
+    cur.execute("SELECT userpassword FROM homework.user where username=%s",username)
     for i in cur:
         if i[0]!=md5password:
             print("密码错误")
