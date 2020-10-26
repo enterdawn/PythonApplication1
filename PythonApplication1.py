@@ -368,10 +368,6 @@ def admin_operation(username):
 
 
 
-#user
-#def user_operation(username):
-
-#login
 #注册
 
 def register():
@@ -449,7 +445,7 @@ def user_operation(username):
         if select == 4:
             user_delete()
         if select == 5:
-            break
+            exit()
 
 #admin_verify_ticket()
 while 1:
